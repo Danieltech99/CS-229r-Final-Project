@@ -1,3 +1,4 @@
+import sys
 from helpers.fiedler import normalized_fiedler
 
 i = 0
@@ -5,6 +6,41 @@ def done():
     global i
     i += 1
     print("Reached Base Case {}".format(i))
+
+def BFS(graph): 
+    s = 0
+    l = len(graph)
+  
+    # Mark all the vertices as not visited 
+    visited = [False] * (l) 
+
+    # Create a queue for BFS 
+    queue = [] 
+
+    # Mark the source node as  
+    # visited and enqueue it 
+    queue.append(s) 
+    visited[s] = True
+
+    while queue: 
+
+        # Dequeue a vertex from  
+        # queue and print it 
+        s = queue.pop(0) 
+        print (s, end = " ") 
+
+        # Get all adjacent vertices of the 
+        # dequeued vertex s. If a adjacent 
+        # has not been visited, then mark it 
+        # visited and enqueue it 
+        for i in range(l): 
+            if graph[s][i] and visited[i] == False: 
+                queue.append(i) 
+                visited[i] = True
+    return visited
+
+def is_connected(graph):
+    return all(BFS(graph))
 
 class SpecifyDecisionTree():
     def __init__(self, g):
@@ -16,27 +52,15 @@ class SpecifyDecisionTree():
         g[v][u] = 0
         return normalized_fiedler(g), g
 
-    def binarySearch(self, data, val):
-        highIndex = len(data)-1
-        lowIndex = 0
-        while highIndex > lowIndex:
-            index = (highIndex + lowIndex) // 2
-            sub = data[index][0]
-            if data[lowIndex][0] == val:
-                return [lowIndex, lowIndex]
-            elif sub == val:
-                return [index, index]
-            elif data[highIndex][0] == val:
-                return [highIndex, highIndex]
-            elif sub > val:
-                if highIndex == index:
-                    return sorted([highIndex, lowIndex])
-                highIndex = index
-            else:
-                if lowIndex == index:
-                    return sorted([highIndex, lowIndex])
-                lowIndex = index
-        return sorted([highIndex, lowIndex])
+    def search(self, data, val):
+        # found = sorted(data, key=lambda tup: tup[0])[0]
+        # b = BFS(found[1])
+        # print("options to search", len(data), min([d[0] for d in data]), min([d[0] for d in data]) == 0, found[0], all(b), b, "\n",found[1])
+        selected = (sys.maxsize, None)
+        for item in data:
+            if abs(selected[0] - val) >= abs(item[0] - val):
+                selected = item
+        return selected
 
     def generate_graphs(self, g, edges, target, bound, allow_disconnected):
         if edges in self.edge_map[len(edges)]: # already_explored
@@ -46,13 +70,13 @@ class SpecifyDecisionTree():
         
         # Base Case: Stop tree after dropped
         fiedler = normalized_fiedler(g)
-        if not allow_disconnected and fiedler == 0:
+        if not allow_disconnected and (fiedler <= 0.0001):
             # done()
             return []
         elif bound == "one" and fiedler <= target: 
             # done()
             return [(fiedler, g)]
-        elif len(edges) == 0:
+        elif (fiedler <= 0.0001):
             # done()
             return [(fiedler, g)]
 
@@ -71,16 +95,16 @@ class SpecifyDecisionTree():
         for i in range(len(edges) + 1):
             self.edge_map[i] = []
         graphs = self.generate_graphs(g, edges, target, bound, allow_disconnected)
-        [lowClosest, highClosest] = self.binarySearch(graphs, target)
-        if lowClosest != highClosest:
-            print("\t Found Two: {} and {}".format(graphs[lowClosest][0], graphs[highClosest][0]))
-        return graphs[highClosest]
+        # [lowClosest, highClosest] = self.search(graphs, target)
+        # if lowClosest != highClosest:
+        #     print("\t Found Two: {} and {}".format(graphs[lowClosest][0], graphs[highClosest][0]))
+        return self.search(graphs, target)
 
     def create_graph(self, target, bound = "two", allow_disconnected = False):
         assert(bound == "two" or bound == "one")
 
         fiedler = normalized_fiedler(self.graph)
-        if not allow_disconnected and fiedler == 0:
+        if not allow_disconnected and (fiedler <= 0.0001):
             return self.graph
 
         # edges prevent the need to do n^2 on sparse graphs

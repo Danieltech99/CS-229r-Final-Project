@@ -77,6 +77,13 @@ class TestSpecifyRandom(Test):
         g = SpecifyRandom(formation["full"]).create_graph(self.target_connectivity, self.epsilon, self.bound)
         return Graph(formation["nodes"], g)
 
+
+
+def get_edges(graph):
+    l = len(graph)
+    return sorted([(u,v) for u in range(l) for v in range(u + 1, l) if graph[u][v]])
+
+
 if __name__ == "__main__":
 
     # To Create a New Test
@@ -88,7 +95,7 @@ if __name__ == "__main__":
     paramter_trials = [0.25, 0.5, 0.75, 1, 1.25]
     test_types = []
     test_types = [
-        lambda t: TestFull(),
+        # lambda t: TestFull(),
         lambda t: TestSpecifyDecisionTree(t),
         lambda t: TestSpecifySmallStep(t),
         lambda t: TestSpecifyBigStep(t),
@@ -117,12 +124,15 @@ if __name__ == "__main__":
         forms = [form]
 
     dash = '-' * 40
-    columns = ["Formation", "Algorithm", "Target λ", "Side", "Result λ", "Result ν"]
+    columns = ["Formation", "Algorithm", "Target λ", "Side", "Result λ", "Result ν", "Edges"]
     print(dash)
-    print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10s}{:<10s}'.format(*columns))
+    print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10s}{:<10s}{:<20s}'.format(*columns))
     print(dash)
     
     for formation in forms:
+        test = TestFull()
+        (test,graph) = (test, test.create_graph(formation))
+        print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
         for x in paramter_trials:
             for t_f in test_types:
@@ -131,7 +141,5 @@ if __name__ == "__main__":
 
                 # Better print formatting 
                 # https://scientificallysound.org/2016/10/17/python-print3/
-                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix)))
-                # name = "{} on {} - Fiedler {} - Norm Fiedler {}".format(formation["name"], test.name, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix))
-                # print(name)
+                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
             print()
