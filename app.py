@@ -84,22 +84,17 @@ if __name__ == "__main__":
     # ... that takes in a formation and outputs a Graph object
     # Then add Test Class to Array
     # ... each test will be supplied a formation based on the args
-    tests = [TestFull()]
+    tests = []
     paramter_trials = [0.25, 0.5, 0.75, 1, 1.25]
     test_types = []
-    test_types = [lambda t: TestSpecifyDecisionTree(t),
+    test_types = [
+        lambda t: TestFull(),
+        lambda t: TestSpecifyDecisionTree(t),
         lambda t: TestSpecifySmallStep(t),
         lambda t: TestSpecifyBigStep(t),
         lambda t: TestSpecifySmallStep(t, "one"),
         lambda t: TestSpecifyBigStep(t, "one")
         ]
-    for t in paramter_trials:
-        tests += [t_f(t) for t_f in test_types]
-    # tests += [TestSpecifyDecisionTree(t) for t in paramter_trials]
-    # tests += [TestSpecifySmallStep(t) for t in paramter_trials]
-    # tests += [TestSpecifySmallStep(t, "one") for t in paramter_trials]
-    # tests += [TestSpecifyBigStep(t) for t in paramter_trials]
-    # tests += [TestSpecifyBigStep(t, "one") for t in paramter_trials]
 
 
     # tests += [TestSpecifyRandom(t, 0.2) for t in paramter_trials]
