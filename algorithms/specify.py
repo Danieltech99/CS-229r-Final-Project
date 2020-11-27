@@ -41,8 +41,8 @@ class SpecifySmallStep():
         res = sorted(in_range, key=lambda tup: tup[0])
         if len(res) == 0: return None
         # assert sorted in correct order
-        if len(sorted_greatest) > 1:
-            assert(sorted_greatest[0][0] <= sorted_greatest[1][0])
+        if len(res) > 1:
+            assert(res[0][0] <= res[1][0])
         return res[0]
 
     def cut_edges(self, target, bound = "two", allow_disconnected = False):
