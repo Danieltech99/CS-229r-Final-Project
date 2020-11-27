@@ -18,64 +18,68 @@ class Test(ABC):
     def create_graph(self):
         pass
 
+# class Full():
+#     def __init__(self, g, target_connectivity, bound):
+#         self.g = g
+#     def create_graph(self, target_connectivity):
+#         return self.g
 class TestFull(Test):
     name = "Full"
     target_connectivity = "N/A"
     bound = "N/A"
-    def create_graph(self, formation):
-        g = Graph(formation["nodes"], formation["full"])
-        # name = "{} on {} - Fiedler {} - Norm Fiedler {}".format(formation["name"], self.name, fiedler(g.adj_matrix), normalized_fiedler(g.adj_matrix))
-        # print(name)
-        return g
+    def __init__(self, formation):
+        # self.target_connectivity = target_connectivity
+        # self.bound = bound
+        self.formation = formation
+        # self.alg = Full(formation["full"], self.target_connectivity, self.bound) 
+    def create_graph(self, target_connectivity = None):
+        # g = self.alg.g
+        g = self.formation["full"]
+        return Graph(self.formation["nodes"], g)
 
 class TestSpecifyDecisionTree(Test):
-    # name_base = "Specify (Decision Tree)"
-    name_base = "Decision Tree"
     name = "Decision Tree"
-    def __init__(self, target_connectivity, bound = "two"):
+    def __init__(self, formation, bound = "two", target_connectivity = 0):
         self.target_connectivity = target_connectivity
         self.bound = bound
-        # self.name = "{} c={} bound={}".format(self.name_base, self.target_connectivity, bound)
-    def create_graph(self, formation):
-        g = SpecifyDecisionTree(formation["full"]).create_graph(self.target_connectivity, self.bound)
-        return Graph(formation["nodes"], g)
+        self.formation = formation
+        self.alg = SpecifyDecisionTree(self.formation["full"], self.target_connectivity, self.bound) 
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity)
+        return Graph(self.formation["nodes"], g)
 
 class TestSpecifySmallStep(Test):
-    # name_base = "Specify (Small Step)"
-    name_base = "Small Step"
     name = "Small Step"
-    def __init__(self, target_connectivity, bound = "two"):
-        self.target_connectivity = target_connectivity
+    def __init__(self, formation, bound = "two"):
+        # self.target_connectivity = target_connectivity
         self.bound = bound
-        # self.name = "{} c={} bound={}".format(self.name_base, self.target_connectivity, bound)
-    def create_graph(self, formation):
-        g = SpecifySmallStep(formation["full"]).create_graph(self.target_connectivity, self.bound)
-        return Graph(formation["nodes"], g)
+        self.formation = formation
+        self.alg = SpecifySmallStep(self.formation["full"])
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
 
 class TestSpecifyBigStep(Test):
-    # name_base = "Specify (Big Step)"
-    name_base = "Big Step"
     name = "Big Step"
-    def __init__(self, target_connectivity, bound = "two"):
-        self.target_connectivity = target_connectivity
+    def __init__(self, formation, bound = "two"):
+        # self.target_connectivity = target_connectivity
         self.bound = bound
-        # self.name = "{} c={} bound={}".format(self.name_base, self.target_connectivity, bound)
-    def create_graph(self, formation):
-        g = SpecifyBigStep(formation["full"]).create_graph(self.target_connectivity, self.bound)
-        return Graph(formation["nodes"], g)
+        self.formation = formation
+        self.alg = SpecifyBigStep(self.formation["full"])
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
 
 class TestSpecifyRandom(Test):
-    # name_base = "Specify (Random)"
-    name_base = "Random"
     name = "Random"
-    def __init__(self, target_connectivity, epsilon, bound = "two"):
-        self.target_connectivity = target_connectivity
+    def __init__(self, formation, bound = "two", epsilon = 0.2):
         self.bound = bound
         self.epsilon = epsilon
-        # self.name = "{} c={} epsilon={} bound={}".format(self.name_base, self.target_connectivity, epsilon, bound)
-    def create_graph(self, formation):
-        g = SpecifyRandom(formation["full"]).create_graph(self.target_connectivity, self.epsilon, self.bound)
-        return Graph(formation["nodes"], g)
+        self.formation = formation
+        self.alg = SpecifyRandom(self.formation["full"])
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound)
+        return Graph(self.formation["nodes"], g)
 
 
 
@@ -85,33 +89,12 @@ def get_edges(graph):
 
 
 if __name__ == "__main__":
-
-    # To Create a New Test
-    # ... create a class with a `create_graph` method and a name property
-    # ... that takes in a formation and outputs a Graph object
-    # Then add Test Class to Array
-    # ... each test will be supplied a formation based on the args
-    tests = []
-    paramter_trials = [0.25, 0.5, 0.75, 1, 1.25]
-    test_types = []
-    test_types = [
-        # lambda t: TestFull(),
-        lambda t: TestSpecifyDecisionTree(t),
-        lambda t: TestSpecifySmallStep(t),
-        lambda t: TestSpecifyBigStep(t),
-        lambda t: TestSpecifySmallStep(t, "one"),
-        lambda t: TestSpecifyBigStep(t, "one")
-        ]
-
-
-    # tests += [TestSpecifyRandom(t, 0.2) for t in paramter_trials]
-    # tests += [TestSpecifyRandom(t, 0.2, "one") for t in paramter_trials]
-    # tests += [TestSpecifyRandom(t, 0.1) for t in paramter_trials]
-    # tests += [TestSpecifyRandom(t, 0.1, "one") for t in paramter_trials]
-
+    
+    # 
+    # Arguments
+    # 
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument("--test", type=int, help="enter a test number/id",
-                        nargs='?', default=0, const=0, choices=range(0, len(tests) + 1))
     parser.add_argument("--formation", type=int, help="enter a formation number/id",
                         nargs='?', default=1, const=0, choices=range(0, len(formations) + 1))
     args = parser.parse_args()
@@ -123,23 +106,52 @@ if __name__ == "__main__":
         form = formations[args.formation - 1]
         forms = [form]
 
+
+    # To Create a New Test
+    # ... create a class with a `create_graph` method and a name property
+    # ... that takes in a formation and outputs a Graph object
+    # Then add Test Class to Array
+    # ... each test will be supplied a formation based on the args
+    paramter_trials = [0.25, 0.5, 0.75, 1, 1.25]
+    # paramter_trials = [0.5, 0.75, 1, 1.25]
+    
+ 
+
+    # 
+    # Run Simulations
+    # 
+
     dash = '-' * 40
     columns = ["Formation", "Algorithm", "Target λ", "Side", "Result λ", "Result ν", "Edges"]
     print(dash)
     print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10s}{:<10s}{:<20s}'.format(*columns))
     print(dash)
+
+    # Preload classes to allow decision tree to make only once
+
     
     for formation in forms:
-        test = TestFull()
-        (test,graph) = (test, test.create_graph(formation))
+
+        test_types = [
+            TestSpecifyDecisionTree(formation, bound="one", target_connectivity=min(paramter_trials)),
+            # TestSpecifyDecisionTree(formation),
+            # TestSpecifySmallStep(formation),
+            # TestSpecifyBigStep(formation),
+            TestSpecifySmallStep(formation, "one"),
+            TestSpecifyBigStep(formation, "one")
+        ]
+
+        test = TestFull(formation)
+        (test,graph) = (test, test.create_graph(None))
         print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
         for x in paramter_trials:
             for t_f in test_types:
-                test = t_f(x)
-                (test,graph) = (test, test.create_graph(formation))
+                # test = t_f(x)
+                test = t_f
+                (test,graph) = (test, test.create_graph(x))
 
                 # Better print formatting 
                 # https://scientificallysound.org/2016/10/17/python-print3/
-                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
+                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
             print()
