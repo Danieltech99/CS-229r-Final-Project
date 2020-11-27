@@ -35,10 +35,14 @@ class SpecifyRandom(SpecifySmallStep):
                 #     return f, g_next
                 # Valid step
                 # if f - target >= 0.00001:
-                fiedler = f
-                g = g_next
-                edges.remove((u,v))
-                break
+                if f < fiedler:
+                    fiedler = f
+                    g = g_next
+                    edges.remove((u,v))
+                    break
+                else:
+                    edges_considering.remove((u,v))
+                    continue
                 
                 
             
