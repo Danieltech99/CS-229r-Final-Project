@@ -7,40 +7,6 @@ def done():
     i += 1
     print("Reached Base Case {}".format(i))
 
-def BFS(graph): 
-    s = 0
-    l = len(graph)
-  
-    # Mark all the vertices as not visited 
-    visited = [False] * (l) 
-
-    # Create a queue for BFS 
-    queue = [] 
-
-    # Mark the source node as  
-    # visited and enqueue it 
-    queue.append(s) 
-    visited[s] = True
-
-    while queue: 
-
-        # Dequeue a vertex from  
-        # queue and print it 
-        s = queue.pop(0) 
-        print (s, end = " ") 
-
-        # Get all adjacent vertices of the 
-        # dequeued vertex s. If a adjacent 
-        # has not been visited, then mark it 
-        # visited and enqueue it 
-        for i in range(l): 
-            if graph[s][i] and visited[i] == False: 
-                queue.append(i) 
-                visited[i] = True
-    return visited
-
-def is_connected(graph):
-    return all(BFS(graph))
 
 class SpecifyDecisionTree():
     def __init__(self, g):
@@ -53,9 +19,6 @@ class SpecifyDecisionTree():
         return normalized_fiedler(g), g
 
     def search(self, data, val):
-        # found = sorted(data, key=lambda tup: tup[0])[0]
-        # b = BFS(found[1])
-        # print("options to search", len(data), min([d[0] for d in data]), min([d[0] for d in data]) == 0, found[0], all(b), b, "\n",found[1])
         selected = (sys.maxsize, None)
         for item in data:
             if abs(selected[0] - val) >= abs(item[0] - val):
