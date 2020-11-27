@@ -1,12 +1,12 @@
 import copy
-from helpers.fiedler import normalized_fiedler
 
 # Currently only supports undirected
 # ... but can easly extend to directed
 
 class SpecifySmallStep():
-    def __init__(self, g):
+    def __init__(self, g, fiedler_check):
         self.graph = g
+        self.fiedler_check = fiedler_check
 
     def is_valid_edge(self, f, target, current, bound,allow_disconnected):
         if not allow_disconnected and f == 0:
@@ -21,7 +21,7 @@ class SpecifySmallStep():
         g = copy.deepcopy(g)
         g[u][v] = 0
         g[v][u] = 0
-        return normalized_fiedler(g), g
+        return self.fiedler_check(g), g
 
     def find_min_edge(self, g, target, current, bound, allow_disconnected):
         l = len(g)
@@ -40,11 +40,14 @@ class SpecifySmallStep():
         # print("in range", list(map(lambda a: a[0], in_range)))
         res = sorted(in_range, key=lambda tup: tup[0])
         if len(res) == 0: return None
+        # assert sorted in correct order
+        if len(sorted_greatest) > 1:
+            assert(sorted_greatest[0][0] <= sorted_greatest[1][0])
         return res[0]
 
     def cut_edges(self, target, bound = "two", allow_disconnected = False):
         g = copy.deepcopy(self.graph)
-        fiedler = normalized_fiedler(g)
+        fiedler = self.fiedler_check(g)
         i = 0
 
         while fiedler > target and fiedler > 0 and i < 12:

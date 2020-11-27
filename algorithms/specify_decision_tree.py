@@ -1,5 +1,4 @@
 import sys
-from helpers.fiedler import normalized_fiedler
 from time import time
 
 
@@ -11,10 +10,11 @@ def done():
 
 
 class SpecifyDecisionTree():
-    def __init__(self, g, target, bound, allow_disconnected = False):
+    def __init__(self, g, fiedler_check, target, bound, allow_disconnected = False):
         assert(bound == "two" or bound == "one")
 
         self.graph = g
+        self.fiedler_check = fiedler_check
 
         self.target = target
         self.bound = bound
@@ -36,7 +36,7 @@ class SpecifyDecisionTree():
         g = g.copy()
         g[u][v] = 0
         g[v][u] = 0
-        return normalized_fiedler(g), g
+        return self.fiedler_check(g), g
 
     def search(self, data, val):
         selected = (sys.maxsize, None)
@@ -53,7 +53,7 @@ class SpecifyDecisionTree():
             self.edge_map[len(edges)].append(edges)
         
         # Base Case: Stop tree after dropped
-        fiedler = normalized_fiedler(g)
+        fiedler = self.fiedler_check(g)
         if not allow_disconnected and (fiedler <= 0.0001):
             done()
             return []
@@ -76,7 +76,7 @@ class SpecifyDecisionTree():
         return options
 
     def create_graph(self, target):
-        fiedler = normalized_fiedler(self.graph)
+        fiedler = self.fiedler_check(self.graph)
         if (not self.allow_disconnected and (fiedler <= 0.0001)) or (self.bound == "one" and fiedler <= target):
             return self.graph
         

@@ -1,6 +1,6 @@
 import copy
-from helpers.fiedler import normalized_fiedler
 from algorithms.specify import SpecifySmallStep
+from helpers.get_edges import get_edges
 
 # Currently only supports undirected
 # ... but can easly extend to directed
@@ -30,11 +30,14 @@ class SpecifyBigStep(SpecifySmallStep):
                 options.append(res)
         in_range = list(filter(lambda item: self.is_valid_edge(item[0], target, current, bound,allow_disconnected), options))
         sorted_greatest = list(sorted(in_range, key=lambda tup: tup[0], reverse=True))
+        # assert sorted in correct order
+        if len(sorted_greatest) > 1:
+            assert(sorted_greatest[0][0] >= sorted_greatest[1][0])
         return sorted_greatest and sorted_greatest[0]
 
     def cut_edges(self, target, bound = "two", allow_disconnected = False):
         g = copy.deepcopy(self.graph)
-        fiedler = normalized_fiedler(g)
+        fiedler = self.fiedler_check(g)
 
         while fiedler > target and fiedler > 0:
             res = self.find_max_edge(g, target, fiedler, bound, allow_disconnected)
@@ -43,7 +46,9 @@ class SpecifyBigStep(SpecifySmallStep):
                 # print("quit")
                 return fiedler, g
             f, g_next = res
-            assert(f < fiedler)
+            # if f == fiedler:
+            #     print("\tfound a fielder match\n",f, get_edges(g_next), "\n",fiedler, get_edges(g))
+            assert(f <= fiedler)
             fiedler = f
             g = g_next
 

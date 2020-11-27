@@ -10,6 +10,7 @@ from algorithms.specify import SpecifySmallStep
 from algorithms.specify_big_step import SpecifyBigStep
 from algorithms.specify_random import SpecifyRandom
 from algorithms.specify_decision_tree import SpecifyDecisionTree
+from helpers.get_edges import get_edges
 
 
 
@@ -39,53 +40,51 @@ class TestFull(Test):
 
 class TestSpecifyDecisionTree(Test):
     name = "Decision Tree"
-    def __init__(self, formation, bound = "two", target_connectivity = 0):
+    def __init__(self, formation, fiedler_check, bound = "two", target_connectivity = 0):
         self.target_connectivity = target_connectivity
         self.bound = bound
         self.formation = formation
-        self.alg = SpecifyDecisionTree(self.formation["full"], self.target_connectivity, self.bound) 
+        self.alg = SpecifyDecisionTree(self.formation["full"], fiedler_check, self.target_connectivity, self.bound) 
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity)
         return Graph(self.formation["nodes"], g)
 
 class TestSpecifySmallStep(Test):
     name = "Small Step"
-    def __init__(self, formation, bound = "two"):
+    def __init__(self, formation, fiedler_check, bound = "two"):
         # self.target_connectivity = target_connectivity
         self.bound = bound
         self.formation = formation
-        self.alg = SpecifySmallStep(self.formation["full"])
+        self.alg = SpecifySmallStep(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity, self.bound)
         return Graph(self.formation["nodes"], g)
 
 class TestSpecifyBigStep(Test):
     name = "Big Step"
-    def __init__(self, formation, bound = "two"):
+    def __init__(self, formation, fiedler_check, bound = "two"):
         # self.target_connectivity = target_connectivity
         self.bound = bound
         self.formation = formation
-        self.alg = SpecifyBigStep(self.formation["full"])
+        self.alg = SpecifyBigStep(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity, self.bound)
         return Graph(self.formation["nodes"], g)
 
 class TestSpecifyRandom(Test):
     name = "Random"
-    def __init__(self, formation, bound = "two", epsilon = 0.2):
+    def __init__(self, formation, fiedler_check, bound = "two", epsilon = 0.2):
         self.bound = bound
         self.epsilon = epsilon
         self.formation = formation
-        self.alg = SpecifyRandom(self.formation["full"])
+        self.alg = SpecifyRandom(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound)
         return Graph(self.formation["nodes"], g)
 
 
 
-def get_edges(graph):
-    l = len(graph)
-    return sorted([(u,v) for u in range(l) for v in range(u + 1, l) if graph[u][v]])
+
 
 
 if __name__ == "__main__":
@@ -136,12 +135,19 @@ if __name__ == "__main__":
         alg_results[formation["name"]] = {}
 
         test_types = [
-            TestSpecifyDecisionTree(formation, bound="one", target_connectivity=min(paramter_trials)),
+            TestSpecifyDecisionTree(formation, normalized_fiedler, bound="one", target_connectivity=min(paramter_trials)),
             # TestSpecifyDecisionTree(formation),
             # TestSpecifySmallStep(formation),
             # TestSpecifyBigStep(formation),
-            TestSpecifySmallStep(formation, "one"),
-            TestSpecifyBigStep(formation, "one")
+            TestSpecifySmallStep(formation, normalized_fiedler, "one"),
+            TestSpecifyBigStep(formation, normalized_fiedler, "one"),
+            # # switch to regular Fiedler
+            TestSpecifyDecisionTree(formation, fiedler, bound="one", target_connectivity=min(paramter_trials)),
+            # TestSpecifyDecisionTree(formation),
+            # TestSpecifySmallStep(formation),
+            # TestSpecifyBigStep(formation),
+            TestSpecifySmallStep(formation, fiedler, "one"),
+            TestSpecifyBigStep(formation, fiedler, "one")
         ]
 
         test = TestFull(formation)
