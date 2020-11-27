@@ -81,7 +81,7 @@ class TestSpecifyRandom(Test):
         self.runs = 10 * len(self.formation["nodes"])
         self.alg = SpecifyRandom(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
-        g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound, self.runs)
+        g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound, runs=self.runs)
         return Graph(self.formation["nodes"], g)
 
 
