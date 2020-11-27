@@ -129,8 +129,11 @@ if __name__ == "__main__":
 
     # Preload classes to allow decision tree to make only once
 
-    
+    results = {}
+    alg_results = {}
     for formation in forms:
+        results[formation["name"]] = {}
+        alg_results[formation["name"]] = {}
 
         test_types = [
             TestSpecifyDecisionTree(formation, bound="one", target_connectivity=min(paramter_trials)),
@@ -143,6 +146,8 @@ if __name__ == "__main__":
 
         test = TestFull(formation)
         (test,graph) = (test, test.create_graph(None))
+        nf = normalized_fiedler(graph.adj_matrix)
+        results[formation["name"]]["true"] = nf
         print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
         for x in paramter_trials:
@@ -153,5 +158,12 @@ if __name__ == "__main__":
 
                 # Better print formatting 
                 # https://scientificallysound.org/2016/10/17/python-print3/
-                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
+                tnf = normalized_fiedler(graph.adj_matrix)
+                
+                if test.name not in alg_results: alg_results[test.name] = {}
+                if formation["name"] not in alg_results[test.name]: alg_results[test.name][formation["name"]] = {}
+                if x not in alg_results[test.name][formation["name"]]: alg_results[test.name][formation["name"]][x] = {}
+                alg_results[test.name][formation["name"]][x] = tnf
+                
+                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
             print()
