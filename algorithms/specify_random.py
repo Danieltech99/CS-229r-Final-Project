@@ -1,6 +1,7 @@
 import copy
 from random import randint, choice
 from algorithms.specify import SpecifySmallStep
+from helpers.fiedler import fiedler as calc_fielder
 
 # Currently only supports undirected
 # ... but can easly extend to directed
@@ -21,7 +22,7 @@ class SpecifyRandom(SpecifySmallStep):
                 u,v = choice(edges_considering)
                 f, g_next = self.fiedler_without_edge(g,u,v)
                 # Invalid step
-                if (not allow_disconnected) and f < 0.0001:
+                if (not allow_disconnected) and calc_fielder(g_next) < 0.0001:
                     edges_considering.remove((u,v))
                     continue
                 # Terminal Cases
@@ -35,14 +36,10 @@ class SpecifyRandom(SpecifySmallStep):
                 #     return f, g_next
                 # Valid step
                 # if f - target >= 0.00001:
-                if f < fiedler:
-                    fiedler = f
-                    g = g_next
-                    edges.remove((u,v))
-                    break
-                else:
-                    edges_considering.remove((u,v))
-                    continue
+                fiedler = f
+                g = g_next
+                edges.remove((u,v))
+                break
                 
                 
             
