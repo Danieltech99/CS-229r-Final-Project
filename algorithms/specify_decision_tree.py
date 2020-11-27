@@ -39,11 +39,10 @@ class SpecifyDecisionTree():
         return self.fiedler_check(g), g
 
     def search(self, data, val):
-        selected = (sys.maxsize, None)
-        for item in data:
-            if abs(selected[0] - val) >= abs(item[0] - val):
-                selected = item
-        return selected
+        if self.bound == "one":
+            data = [x for x in data if x[0] >= val - 0.00001]
+        distance = [(abs(val - f),g) for (f, g) in data]
+        return min(distance, key = lambda t: t[0])
 
     def generate_graphs(self, g, edges, target, bound, allow_disconnected, init = False):
         if init: print("generating decision tree map")
@@ -54,7 +53,7 @@ class SpecifyDecisionTree():
         
         # Base Case: Stop tree after dropped
         fiedler = self.fiedler_check(g)
-        if not allow_disconnected and (fiedler <= 0.0001):
+        if (not allow_disconnected) and (fiedler <= 0.001):
             done()
             return []
         elif (fiedler <= 0.0001):

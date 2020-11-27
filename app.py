@@ -73,13 +73,15 @@ class TestSpecifyBigStep(Test):
 
 class TestSpecifyRandom(Test):
     name = "Random"
-    def __init__(self, formation, fiedler_check, bound = "two", epsilon = 0.2):
+    def __init__(self, formation, fiedler_check, bound = "two", epsilon = 0.2, runs = 10):
         self.bound = bound
         self.epsilon = epsilon
         self.formation = formation
+        # self.runs = runs
+        self.runs = 10 * len(self.formation["nodes"])
         self.alg = SpecifyRandom(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
-        g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound)
+        g = self.alg.create_graph(target_connectivity, self.epsilon, self.bound, self.runs)
         return Graph(self.formation["nodes"], g)
 
 
@@ -139,6 +141,7 @@ if __name__ == "__main__":
             # TestSpecifyDecisionTree(formation),
             # TestSpecifySmallStep(formation),
             # TestSpecifyBigStep(formation),
+            TestSpecifyRandom(formation, normalized_fiedler, "one"),
             TestSpecifySmallStep(formation, normalized_fiedler, "one"),
             TestSpecifyBigStep(formation, normalized_fiedler, "one"),
             # # switch to regular Fiedler
@@ -146,8 +149,9 @@ if __name__ == "__main__":
             # TestSpecifyDecisionTree(formation),
             # TestSpecifySmallStep(formation),
             # TestSpecifyBigStep(formation),
+            TestSpecifyRandom(formation, fiedler, "one"),
             TestSpecifySmallStep(formation, fiedler, "one"),
-            TestSpecifyBigStep(formation, fiedler, "one")
+            TestSpecifyBigStep(formation, fiedler, "one"),
         ]
 
         test = TestFull(formation)
