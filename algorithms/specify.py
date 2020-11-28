@@ -48,18 +48,16 @@ class SpecifySmallStep():
     def cut_edges(self, target, bound = "two", allow_disconnected = False):
         g = copy.deepcopy(self.graph)
         fiedler = self.fiedler_check(g)
-        i = 0
 
-        while fiedler > target and fiedler > 0 and i < 12:
+        while fiedler > target and fiedler > 0:
             # print("fiedler ", fiedler)
             res = self.find_min_edge(g, target, fiedler, bound, allow_disconnected)
             if res is None:
                 # print("quit")
-                return fiedler, g
+                break
             f, g_next = res
             fiedler = f
             g = g_next
-            i += 1
 
         return fiedler, g
 
