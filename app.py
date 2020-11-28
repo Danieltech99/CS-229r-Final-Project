@@ -177,3 +177,6 @@ if __name__ == "__main__":
                 
                 print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
             print()
+    # print("test")
+    # print("Norm ", normalized_fiedler(np.array([[0,0],[0,0]])))
+    # print("Norm ", normalized_fiedler(np.array([[1,0],[0,1]])))
