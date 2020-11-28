@@ -36,14 +36,7 @@ class SpecifySmallStep():
                 res = self.fiedler_without_edge(g,u,v)
                 options.append(res)
         in_range = list(filter(lambda item: self.is_valid_edge(item[0], target, current, bound,allow_disconnected), options))
-        # print("paramaters: target {} current {} bound {} ad {}".format(target, current, bound, allow_disconnected) )
-        # print("in range", list(map(lambda a: a[0], in_range)))
-        res = sorted(in_range, key=lambda tup: tup[0])
-        if len(res) == 0: return None
-        # assert sorted in correct order
-        if len(res) > 1:
-            assert(res[0][0] <= res[1][0])
-        return res[0]
+        return min(in_range, key=lambda tup: tup[0], default=None)
 
     def cut_edges(self, target, bound = "two", allow_disconnected = False):
         g = copy.deepcopy(self.graph)
