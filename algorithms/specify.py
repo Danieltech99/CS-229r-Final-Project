@@ -9,7 +9,7 @@ class SpecifySmallStep():
         self.fiedler_check = fiedler_check
 
     def is_valid_edge(self, f, target, current, bound,allow_disconnected):
-        if not allow_disconnected and f == 0:
+        if not allow_disconnected and f <= 0.001:
             return False
         if bound == "one" and f < target: 
             return False
