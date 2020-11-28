@@ -90,8 +90,6 @@ def plot_alg(data, paramter_trials):
     print("data", data)
     for formation in forms:
         labels = paramter_trials
-        men_means = [20, 34, 30, 35, 27]
-        women_means = [25, 32, 34, 20, 25]
 
         x = np.arange(len(labels))  # the label locations
         width = 0.2  # the width of the bars
@@ -114,28 +112,13 @@ def plot_alg(data, paramter_trials):
         ax.legend(tuple([b[0] for b in rects]), tuple(data.keys()))
         ax.autoscale_view()
 
-
-        def autolabel(rects):
-            """Attach a text label above each bar in *rects*, displaying its height."""
-            for rect in rects:
-                height = rect.get_height()
-                ax.annotate('{}'.format(height),
-                            xy=(rect.get_x() + rect.get_width() / 2, height),
-                            xytext=(0, 3),  # 3 points vertical offset
-                            textcoords="offset points",
-                            ha='center', va='bottom')
-
-        # for bar in rects:
-        #     autolabel(bar)
-
-
         fig.tight_layout()
 
     plt.show()
 
 
 
-
+# Plot algorithm performance seperately
 # def plot_alg(data, paramter_trials):
 #     print("data", data)
 #     for formation in forms:
