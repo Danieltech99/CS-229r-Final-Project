@@ -12,6 +12,7 @@ from algorithms.specify_random import SpecifyRandom
 from algorithms.specify_decision_tree import SpecifyDecisionTree
 from helpers.get_edges import get_edges
 from collections import OrderedDict 
+from helpers.mkdir_p import mkdir_p
 
 
 class Test(ABC):
@@ -77,7 +78,7 @@ class TestSpecifyRandom(Test):
         self.bound = bound
         self.formation = formation
         # self.runs = runs
-        self.runs = 10 * len(self.formation["nodes"])
+        self.runs = 3 * len(self.formation["nodes"])
         self.alg = SpecifyRandom(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity, self.bound, runs=self.runs)
@@ -86,7 +87,7 @@ class TestSpecifyRandom(Test):
 
 
 
-def plot_alg(data, parameter_trials):
+def plot_alg(data, parameter_trials, forms):
     print("data", data)
     for formation in forms:
         labels = parameter_trials
@@ -98,7 +99,6 @@ def plot_alg(data, parameter_trials):
         rects = []
         i = 0
         for name,bar_data in data.items():
-            print("adding abr", name, " with data ", bar_data[formation["name"]])
             rects += [ax.bar(x + (width * i), bar_data[formation["name"]].values(), width, label=name, bottom=0)]
             i += 1
 
@@ -114,49 +114,19 @@ def plot_alg(data, parameter_trials):
 
         fig.tight_layout()
 
+        save_name = formation["name"]
+        mkdir_p("figures/compare_algorithms")
+        if save_name: 
+            plt.savefig("figures/compare_algorithms/{}.png".format(save_name))
+            plt.close()
+
     plt.show()
 
 
-
-# Plot algorithm performance seperately
-# def plot_alg(data, parameter_trials):
-#     print("data", data)
-#     for formation in forms:
-#         for trial in parameter_trials:
-#             labels = data.keys()
-
-#             x = np.arange(len(labels))  # the label locations
-#             vals = [item[formation["name"]][trial] for item in data.values()]
-
-#             fig, ax = plt.subplots()
-#             ax.bar(x, vals)
-
-#             # Add some text for labels, title and custom x-axis tick labels, etc.
-#             ax.set_ylabel('Achived Fiedler Value')
-#             ax.set_xlabel('Algorithm')
-#             ax.set_title('Algorithm Comparision (Desired Fiedler: {}) (Formation: {})'.format(trial, formation["name"]))
-#             ax.set_xticks(x)
-#             ax.set_xticklabels(labels)
-#             # ax.legend()
-
-
-#             # def autolabel(rects):
-#             #     """Attach a text label above each bar in *rects*, displaying its height."""
-#             #     for rect in rects:
-#             #         height = rect.get_height()
-#             #         ax.annotate('{}'.format(height),
-#             #                     xy=(rect.get_x() + rect.get_width() / 2, height),
-#             #                     xytext=(0, 3),  # 3 points vertical offset
-#             #                     textcoords="offset points",
-#             #                     ha='center', va='bottom')
-
-
-#             # autolabel(rects1)
-#             # autolabel(rects2)
-
-#             fig.tight_layout()
-
-#     plt.show()
+def random_graph(size, target_fiedler = 0.5):
+    graph = np.array([np.array([0 if i == j else 1 for j in range(size)]) for i in range(size)])
+    subgraph = SpecifyRandom(graph, fiedler).create_graph(target_fiedler, bound="one", runs=1)
+    return subgraph
 
 if __name__ == "__main__":
     
@@ -166,7 +136,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--formation", type=int, help="enter a formation number/id",
-                        nargs='?', default=1, const=0, choices=range(0, len(formations) + 1))
+                        nargs='?', default=0, const=0, choices=range(0, len(formations) + 1))
     args = parser.parse_args()
 
     # To Create a Formation, add one to `formations.py`
@@ -182,10 +152,20 @@ if __name__ == "__main__":
     # ... that takes in a formation and outputs a Graph object
     # Then add Test Class to Array
     # ... each test will be supplied a formation based on the args
-    parameter_trials = [0.25, 0.5, 0.75, 1, 1.25]
+    # parameter_trials = [0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.75, 1]
+    parameter_trials = [0.45, 0.5, 0.6, 0.75, 1]
+    parameter_trials += [1.25, 1.5,1.75,2,2.5,3.2,4,4.5,6]
     # parameter_trials = [0.5, 0.75]
     
- 
+    additional = []
+    for size in range(4,7):
+        for target in np.linspace(1,4,9):
+            additional.append({
+                "name": "n = {} and λ ≈ {}".format(size,round(target,2)),
+                "nodes": [None, None],
+                "full": random_graph(size, target)
+            })
+    forms = additional + forms
 
     # 
     # Run Simulations
@@ -206,20 +186,7 @@ if __name__ == "__main__":
         # alg_results[formation["name"]] = {}
 
         test_types = [
-            # TestSpecifyDecisionTree(formation, normalized_fiedler, bound="one", target_connectivity=min(parameter_trials)),
-            # TestSpecifyDecisionTree(formation),
-            # TestSpecifySmallStep(formation),
-            # TestSpecifyBigStep(formation),
-
-            # TestSpecifyRandom(formation, normalized_fiedler, "one"),
-            # TestSpecifySmallStep(formation, normalized_fiedler, "one"),
-            # TestSpecifyBigStep(formation, normalized_fiedler, "one"),
-
-            # # switch to regular Fiedler
             TestSpecifyDecisionTree(formation, fiedler, bound="one", target_connectivity=min(parameter_trials)),
-            # TestSpecifyDecisionTree(formation, fiedler),
-            # TestSpecifySmallStep(formation, fiedler),
-            # TestSpecifyBigStep(formation, fiedler),
             TestSpecifyRandom(formation, fiedler, "one"),
             TestSpecifySmallStep(formation, fiedler, "one"),
             TestSpecifyBigStep(formation, fiedler, "one"),
@@ -231,9 +198,11 @@ if __name__ == "__main__":
         results[formation["name"]]["true"] = nf
         print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
-        for x in parameter_trials:
+
+        trials = parameter_trials
+
+        for x in trials:
             for t_f in test_types:
-                # test = t_f(x)
                 test = t_f
                 (test,graph) = (test, test.create_graph(x))
 
@@ -241,7 +210,6 @@ if __name__ == "__main__":
                 # https://scientificallysound.org/2016/10/17/python-print3/
                 tnf = fiedler(graph.adj_matrix)
                 
-                # test_n = "{} ({} sided)".format(test.name, test.bound)
                 test_n = test.name
                 if test_n not in alg_results: alg_results[test_n] = {}
                 if formation["name"] not in alg_results[test_n]: alg_results[test_n][formation["name"]] = {}
@@ -250,7 +218,5 @@ if __name__ == "__main__":
                 
                 print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
             print()
-    plot_alg(alg_results,parameter_trials)
-    # print("test")
-    # print("Norm ", normalized_fiedler(np.array([[0,0],[0,0]])))
-    # print("Norm ", normalized_fiedler(np.array([[1,0],[0,1]])))
+            
+    plot_alg(alg_results,parameter_trials, forms)

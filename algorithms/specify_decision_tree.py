@@ -38,6 +38,9 @@ class SpecifyDecisionTree():
         g[v][u] = 0
         return self.fiedler_check(g), g
 
+    def possibilities(self):
+        return set(f for (f, g) in self.options)
+
     def search(self, data, val):
         if self.bound == "one":
             data = [x for x in data if x[0] >= val - 0.00001]
