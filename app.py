@@ -8,6 +8,10 @@ from formations import formations
 from algorithms.prims import Graph as PrimGraph
 from algorithms.specify import SpecifySmallStep
 from algorithms.specify_big_step import SpecifyBigStep
+from algorithms.specify_small_resistance import SpecifySmallLeverage
+from algorithms.specify_large_resistance import SpecifyLargeLeverage
+from algorithms.specify_small_gradient import SpecifySmallGradient
+from algorithms.specify_large_gradient import SpecifyLargeGradient
 from algorithms.specify_random import SpecifyRandom
 from algorithms.specify_decision_tree import SpecifyDecisionTree
 from helpers.get_edges import get_edges
@@ -72,6 +76,51 @@ class TestSpecifyBigStep(Test):
         g = self.alg.create_graph(target_connectivity, self.bound)
         return Graph(self.formation["nodes"], g)
 
+class TestSpecifySmallLeverage(Test):
+    name = "Small Leverage"
+    def __init__(self, formation, fiedler_check, bound = "two"):
+        # self.target_connectivity = target_connectivity
+        self.bound = bound
+        self.formation = formation
+        self.alg = SpecifySmallLeverage(self.formation["full"], fiedler_check)
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
+
+class TestSpecifyLargeLeverage(Test):
+    name = "Big Leverage"
+    def __init__(self, formation, fiedler_check, bound = "two"):
+        # self.target_connectivity = target_connectivity
+        self.bound = bound
+        self.formation = formation
+        self.alg = SpecifyLargeLeverage(self.formation["full"], fiedler_check)
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
+
+
+class TestSpecifySmallGradient(Test):
+    name = "Small Gradient"
+    def __init__(self, formation, fiedler_check, bound = "two"):
+        # self.target_connectivity = target_connectivity
+        self.bound = bound
+        self.formation = formation
+        self.alg = SpecifySmallGradient(self.formation["full"], fiedler_check)
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
+
+class TestSpecifyLargeGradient(Test):
+    name = "Big Gradient"
+    def __init__(self, formation, fiedler_check, bound = "two"):
+        # self.target_connectivity = target_connectivity
+        self.bound = bound
+        self.formation = formation
+        self.alg = SpecifyLargeGradient(self.formation["full"], fiedler_check)
+    def create_graph(self, target_connectivity):
+        g = self.alg.create_graph(target_connectivity, self.bound)
+        return Graph(self.formation["nodes"], g)
+
 class TestSpecifyRandom(Test):
     name = "Random"
     def __init__(self, formation, fiedler_check, bound = "two", runs = 10):
@@ -93,9 +142,9 @@ def plot_alg(data, parameter_trials, forms):
         labels = parameter_trials
 
         x = np.arange(len(labels))  # the label locations
-        width = 0.2  # the width of the bars
+        width = 0.10  # the width of the bars
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10,10))
         rects = []
         i = 0
         for name,bar_data in data.items():
@@ -154,7 +203,8 @@ if __name__ == "__main__":
     # ... each test will be supplied a formation based on the args
     # parameter_trials = [0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.75, 1]
     parameter_trials = [0.45, 0.5, 0.6, 0.75, 1]
-    parameter_trials += [1.25, 1.5,1.75,2,2.5,3.2,4,4.5,6]
+    # parameter_trials += [1.25, 1.5,1.75,2,2.5,3.2,4,4.5,6]
+    parameter_trials += [1.25, 1.5,1.75,2,2.5]
     # parameter_trials = [0.5, 0.75]
     
     additional = []
@@ -190,6 +240,10 @@ if __name__ == "__main__":
             TestSpecifyRandom(formation, fiedler, "one"),
             TestSpecifySmallStep(formation, fiedler, "one"),
             TestSpecifyBigStep(formation, fiedler, "one"),
+            TestSpecifySmallLeverage(formation, fiedler, "one"),
+            TestSpecifyLargeLeverage(formation, fiedler, "one"),
+            TestSpecifySmallGradient(formation, fiedler, "one"),
+            TestSpecifyLargeGradient(formation, fiedler, "one"),
         ]
 
         test = TestFull(formation)
