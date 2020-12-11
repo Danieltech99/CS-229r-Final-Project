@@ -86,10 +86,10 @@ class TestSpecifyRandom(Test):
 
 
 
-def plot_alg(data, paramter_trials):
+def plot_alg(data, parameter_trials):
     print("data", data)
     for formation in forms:
-        labels = paramter_trials
+        labels = parameter_trials
 
         x = np.arange(len(labels))  # the label locations
         width = 0.2  # the width of the bars
@@ -119,10 +119,10 @@ def plot_alg(data, paramter_trials):
 
 
 # Plot algorithm performance seperately
-# def plot_alg(data, paramter_trials):
+# def plot_alg(data, parameter_trials):
 #     print("data", data)
 #     for formation in forms:
-#         for trial in paramter_trials:
+#         for trial in parameter_trials:
 #             labels = data.keys()
 
 #             x = np.arange(len(labels))  # the label locations
@@ -182,8 +182,8 @@ if __name__ == "__main__":
     # ... that takes in a formation and outputs a Graph object
     # Then add Test Class to Array
     # ... each test will be supplied a formation based on the args
-    paramter_trials = [0.25, 0.5, 0.75, 1, 1.25]
-    # paramter_trials = [0.5, 0.75]
+    parameter_trials = [0.25, 0.5, 0.75, 1, 1.25]
+    # parameter_trials = [0.5, 0.75]
     
  
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         # alg_results[formation["name"]] = {}
 
         test_types = [
-            # TestSpecifyDecisionTree(formation, normalized_fiedler, bound="one", target_connectivity=min(paramter_trials)),
+            # TestSpecifyDecisionTree(formation, normalized_fiedler, bound="one", target_connectivity=min(parameter_trials)),
             # TestSpecifyDecisionTree(formation),
             # TestSpecifySmallStep(formation),
             # TestSpecifyBigStep(formation),
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             # TestSpecifyBigStep(formation, normalized_fiedler, "one"),
 
             # # switch to regular Fiedler
-            TestSpecifyDecisionTree(formation, fiedler, bound="one", target_connectivity=min(paramter_trials)),
+            TestSpecifyDecisionTree(formation, fiedler, bound="one", target_connectivity=min(parameter_trials)),
             # TestSpecifyDecisionTree(formation, fiedler),
             # TestSpecifySmallStep(formation, fiedler),
             # TestSpecifyBigStep(formation, fiedler),
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         results[formation["name"]]["true"] = nf
         print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
-        for x in paramter_trials:
+        for x in parameter_trials:
             for t_f in test_types:
                 # test = t_f(x)
                 test = t_f
@@ -250,7 +250,7 @@ if __name__ == "__main__":
                 
                 print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
             print()
-    plot_alg(alg_results,paramter_trials)
+    plot_alg(alg_results,parameter_trials)
     # print("test")
     # print("Norm ", normalized_fiedler(np.array([[0,0],[0,0]])))
     # print("Norm ", normalized_fiedler(np.array([[1,0],[0,1]])))
