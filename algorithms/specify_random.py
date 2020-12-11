@@ -1,7 +1,7 @@
 import copy
 from random import randint, choice
+from helpers.fiedler import fiedler as calc_fiedler
 from algorithms.specify import SpecifySmallStep
-from helpers.fiedler import fiedler as calc_fielder
 
 # Currently only supports undirected
 # ... but can easly extend to directed
@@ -15,10 +15,13 @@ class SpecifyRandom(SpecifySmallStep):
 
         fiedler = self.fiedler_check(g)
 
+        # Once the following constraints are violated, removing any edge is detrimental
         while fiedler > target and fiedler > 0:
 
             edges_considering = copy.deepcopy(edges)
             while len(edges_considering):
+                # Already reports in `fiedler_without_edge`
+                # self.report_obj["considerations_till_arrived"] += 1
                 u,v = choice(edges_considering)
                 f, g_next = self.fiedler_without_edge(g,u,v)
                 # Invalid step
@@ -35,6 +38,7 @@ class SpecifyRandom(SpecifySmallStep):
                 fiedler = f
                 g = g_next
                 edges.remove((u,v))
+                self.report_obj["removals_till_arrived"] += 1
                 break
                 
                 
@@ -47,6 +51,13 @@ class SpecifyRandom(SpecifySmallStep):
     def create_graph(self, target, bound = "two", allow_disconnected = False, runs = 10):
         assert(bound == "two" or bound == "one")
         
+        self.report_obj["considerations_till_arrived"] = 0
+        self.report_obj["removals_till_arrived"] = 0
+
         graphs = [self.cut_edges(target, bound, allow_disconnected) for i in range(runs)]
         distance = [(abs(target - f),g) for (f, g) in graphs]
+
+        self.report_obj["considerations_till_arrived"] /= runs
+        self.report_obj["removals_till_arrived"] /= runs
+
         return min(distance, key = lambda t: t[0])[1]

@@ -1,6 +1,6 @@
 import copy
 from algorithms.specify import SpecifySmallStep
-from helpers.get_edges import get_edges
+# from helpers.get_edges import get_edges
 
 # Currently only supports undirected
 # ... but can easly extend to directed
@@ -30,6 +30,8 @@ class SpecifyBigStep(SpecifySmallStep):
                 options.append(res)
         in_range = list(filter(lambda item: self.is_valid_edge(item[0], target, current, bound,allow_disconnected), options))
         in_range = [(f, g, abs(f - target)) for (f, g) in in_range]
+        # Take the edge that brings us closest to the target Fiedler value
+        # Thus taking the edge that changes the fiedler the "most" but not "too much"
         res = min(in_range, key=lambda tup: tup[2], default=None)
         if res is None: return None
         return res[0], res[1]
@@ -38,11 +40,11 @@ class SpecifyBigStep(SpecifySmallStep):
         g = copy.deepcopy(self.graph)
         fiedler = self.fiedler_check(g)
 
+        # Once the following constraints are violated, removing any edge is detrimental
         while fiedler > target and fiedler > 0:
             # print("fiedler ", fiedler)
             res = self.find_max_edge(g, target, fiedler, bound, allow_disconnected)
             if res is None:
-                # print("quit")
                 break
             f, g_next = res
             fiedler = f
