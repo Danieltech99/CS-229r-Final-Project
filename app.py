@@ -136,7 +136,7 @@ class TestSpecifyRandom(Test):
 
 
 
-def plot_alg(data, parameter_trials, forms):
+def plot_alg(data, parameter_trials, forms, save_path = "compare_algorithms"):
     print("data", data)
     for formation in forms:
         labels = parameter_trials
@@ -164,9 +164,9 @@ def plot_alg(data, parameter_trials, forms):
         fig.tight_layout()
 
         save_name = formation["name"]
-        mkdir_p("figures/compare_algorithms")
+        mkdir_p("figures/{}".format(save_path))
         if save_name: 
-            plt.savefig("figures/compare_algorithms/{}.png".format(save_name))
+            plt.savefig("figures/{}/{}.png".format(save_path,save_name))
             plt.close()
 
     plt.show()
@@ -177,46 +177,8 @@ def random_graph(size, target_fiedler = 0.5):
     subgraph = SpecifyRandom(graph, fiedler).create_graph(target_fiedler, bound="one", runs=1)
     return subgraph
 
-if __name__ == "__main__":
-    
-    # 
-    # Arguments
-    # 
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--formation", type=int, help="enter a formation number/id",
-                        nargs='?', default=0, const=0, choices=range(0, len(formations) + 1))
-    args = parser.parse_args()
 
-    # To Create a Formation, add one to `formations.py`
-    if args.formation == 0:
-        forms = formations
-    else: 
-        form = formations[args.formation - 1]
-        forms = [form]
-
-
-    # To Create a New Test
-    # ... create a class with a `create_graph` method and a name property
-    # ... that takes in a formation and outputs a Graph object
-    # Then add Test Class to Array
-    # ... each test will be supplied a formation based on the args
-    # parameter_trials = [0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.75, 1]
-    parameter_trials = [0.45, 0.5, 0.6, 0.75, 1]
-    # parameter_trials += [1.25, 1.5,1.75,2,2.5,3.2,4,4.5,6]
-    parameter_trials += [1.25, 1.5,1.75,2,2.5]
-    # parameter_trials = [0.5, 0.75]
-    
-    additional = []
-    for size in range(4,7):
-        for target in np.linspace(1,4,9):
-            additional.append({
-                "name": "n = {} and λ ≈ {}".format(size,round(target,2)),
-                "nodes": [None, None],
-                "full": random_graph(size, target)
-            })
-    forms = additional + forms
-
+def simulate(forms, parameter_trials):
     # 
     # Run Simulations
     # 
@@ -274,3 +236,45 @@ if __name__ == "__main__":
             print()
             
     plot_alg(alg_results,parameter_trials, forms)
+
+if __name__ == "__main__":
+    
+    # 
+    # Arguments
+    # 
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--formation", type=int, help="enter a formation number/id",
+                        nargs='?', default=0, const=0, choices=range(0, len(formations) + 1))
+    args = parser.parse_args()
+
+    # To Create a Formation, add one to `formations.py`
+    if args.formation == 0:
+        forms = formations
+    else: 
+        form = formations[args.formation - 1]
+        forms = [form]
+
+
+    # To Create a New Test
+    # ... create a class with a `create_graph` method and a name property
+    # ... that takes in a formation and outputs a Graph object
+    # Then add Test Class to Array
+    # ... each test will be supplied a formation based on the args
+    # parameter_trials = [0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.75, 1]
+    parameter_trials = [0.45, 0.5, 0.6, 0.75, 1]
+    # parameter_trials += [1.25, 1.5,1.75,2,2.5,3.2,4,4.5,6]
+    parameter_trials += [1.25, 1.5,1.75,2,2.5]
+    # parameter_trials = [0.5, 0.75]
+    
+    additional = []
+    for size in range(4,7):
+        for target in np.linspace(1,4,9):
+            additional.append({
+                "name": "n = {} and λ ≈ {}".format(size,round(target,2)),
+                "nodes": [None, None],
+                "full": random_graph(size, target)
+            })
+    forms = additional + forms
+
+    
