@@ -137,7 +137,6 @@ class TestSpecifyRandom(Test):
 
 
 def plot_alg(data, parameter_trials, forms, save_path = "compare_algorithms"):
-    print("data", data)
     for formation in forms:
         labels = parameter_trials
 
@@ -186,7 +185,7 @@ def simulate(forms, parameter_trials):
     dash = '-' * 40
     columns = ["Formation", "Algorithm", "Target λ", "Side", "Result λ", "Result ν", "Edges"]
     print(dash)
-    print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10s}{:<10s}{:<20s}'.format(*columns))
+    print('{:<24s}{:<20s}{:<8s}{:<8s}{:<10s}{:<10s}{:<20s}'.format(*columns))
     print(dash)
 
     # Preload classes to allow decision tree to make only once
@@ -212,7 +211,7 @@ def simulate(forms, parameter_trials):
         (test,graph) = (test, test.create_graph(None))
         nf = fiedler(graph.adj_matrix)
         results[formation["name"]]["true"] = nf
-        print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
+        print('{:<24s}{:<20s}{:<8s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
 
         trials = parameter_trials
@@ -232,12 +231,17 @@ def simulate(forms, parameter_trials):
                 if x not in alg_results[test_n][formation["name"]]: alg_results[test_n][formation["name"]][x] = {}
                 alg_results[test_n][formation["name"]][x] = tnf
                 
-                print('{:<10s}{:<16s}{:<12s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
+                print('{:<24s}{:<20s}{:<8s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
             print()
             
     plot_alg(alg_results,parameter_trials, forms)
 
 if __name__ == "__main__":
+
+    import timeit
+    start = timeit.default_timer()
+
+
     
     # 
     # Arguments
@@ -276,5 +280,9 @@ if __name__ == "__main__":
                 "full": random_graph(size, target)
             })
     forms = additional + forms
+    simulate(forms, parameter_trials)
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)  
 
     

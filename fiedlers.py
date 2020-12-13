@@ -19,6 +19,7 @@ import matplotlib._color_data as mcd
 def plot_alg(data):
     
     fig, ax = plt.subplots()
+    ax.xaxis.set_major_formatter(plt.NullFormatter())
     i = 0
     for n,(form,options) in data.items():
         x = list(i for _ in form)
@@ -26,7 +27,6 @@ def plot_alg(data):
         name = n + " ({} Unique Fiedlers - {} Configurations)".format(len(y), options)
         ax.scatter(x, y, c=list(mcd.XKCD_COLORS.values())[i].upper(), label=name,
                 alpha=0.5, edgecolors='none')
-        ax.set_yscale('logit')
         i += 1
 
     ax.legend()
@@ -59,6 +59,9 @@ if __name__ == "__main__":
     # Run Simulations
     # 
 
+    import timeit
+    start = timeit.default_timer()
+
     # Preload classes to allow decision tree to make only once
 
     results = {}
@@ -68,5 +71,6 @@ if __name__ == "__main__":
         results[formation["name"]] = (alg.possibilities(),len(alg.options))
         
 
-        
     plot_alg(results)
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)  
