@@ -39,11 +39,11 @@ The optional formation flag allows you to specify which formation to run. The de
 ## Compare Algorithms
 *Order of Runtime (with defaults): 1 minutes - x minutes*
 
-This file generates bar charts comparing the achieved Fiedler value of each algorithm compared to the exhaustive search for each algorithm.
+This file generates bar charts comparing the achieved Fiedler value of each algorithm compared to the exhaustive search for each algorithm. Generated graphs are commented out until enabled.
 
 The program generates a number of semi-sparse graphs by starting with a fully connected graph of different numbers of nodes, which were passed to the Randomized algorithm with different target algebraic connectivity parameters.
 
-***Warning:** this file uses the exhaustive search algorithm and thus is exponential in terms of the number of edges and the minimum target Fiedler value.*
+***Warning:** this file can use the exhaustive search algorithm and thus is exponential in terms of the number of edges and the minimum target Fiedler value. Also large graphs can take a long time to evaluate even without the exhaustive search algorithm. Try not to test about n=50 unless running for hours.*
 
 ```
 python3 app.py --formation [0-3]
@@ -58,4 +58,4 @@ The optional formation flag allows you to specify which formation to run in addi
 
 **Algorithms:** to change the algorithms being tested, in `app.py` create a class that extends `Test` like the other algorithms and has the method `create_graph` (see other algorithm test classes for constraints and parameters). Then add the class to the `test_types` list.
 
-**Generated Graphs:** to change the generated graphs, modify the double loop in __main__ that calls `random_graph`.
+**Generated Graphs:** to change the generated graphs, modify the loop in __main__ that calls `random_graph`.

@@ -145,11 +145,11 @@ class TestSpecifyLargeGradient(Test):
 class TestSpecifyRandom(Test):
     name = "Random"
     color = "tab:red"
-    def __init__(self, formation, fiedler_check, bound = "two", runs = 10):
+    def __init__(self, formation, fiedler_check, bound = "two", runs = 3):
         self.bound = bound
         self.formation = formation
         # self.runs = runs
-        self.runs = 3 * len(self.formation["nodes"])
+        self.runs = runs * len(self.formation["nodes"])
         self.alg = SpecifyRandom(self.formation["full"], fiedler_check)
     def create_graph(self, target_connectivity):
         g = self.alg.create_graph(target_connectivity, self.bound, runs=self.runs)
@@ -158,78 +158,36 @@ class TestSpecifyRandom(Test):
 
 
 
-# def plot_bar_alg(data, parameter_trials, forms, save_path = "compare_algorithms"):
-#     for formation in forms:
-#         labels = parameter_trials
+def plot_bar_alg(data, parameter_trials, formation, save_path = "compare_algorithms"):
+    labels = parameter_trials
 
-#         x = np.arange(len(labels))  # the label locations
-#         width = 0.10  # the width of the bars
+    x = np.arange(len(labels))  # the label locations
+    width = 0.10  # the width of the bars
 
-#         fig, ax = plt.subplots(figsize=(10,10))
-#         rects = []
-#         i = 0
-#         for name,bar_data in data.items():
-#             rects += [ax.bar(x + (width * i), bar_data[formation["name"]].values(), width, label=name, bottom=0)]
-#             i += 1
+    fig, ax = plt.subplots(figsize=(10,10))
+    rects = []
+    i = 0
+    for (name, color),bar_data in data.items():
+        rects += [ax.bar(x + (width * i), bar_data.values(), width, label=name, bottom=0, color=color)]
+        i += 1
 
-#         # Add some text for labels, title and custom x-axis tick labels, etc.
-#         ax.set_ylabel('Achived Fiedler Value')
-#         ax.set_xlabel('Desired Fiedler Value')
-#         ax.set_title('Algorithm Comparision (Formation {})'.format(formation["name"]))
-#         ax.set_xticks(x + width / 2)
-#         ax.set_xticklabels(labels)
-#         # ax.legend()
-#         ax.legend(tuple([b[0] for b in rects]), tuple(data.keys()))
-#         ax.autoscale_view()
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Achived Fiedler Value')
+    ax.set_xlabel('Desired Fiedler Value')
+    ax.set_title('Algorithm Comparision (Formation {})'.format(formation["name"]))
+    ax.set_xticks(x + width / 2)
+    ax.set_xticklabels(labels)
+    # ax.legend()
+    ax.legend(tuple([b[0] for b in rects]), tuple(name for (name,_) in data.keys()))
+    ax.autoscale_view()
 
-#         fig.tight_layout()
+    fig.tight_layout()
 
-#         save_name = formation["name"]
-#         mkdir_p("figures/{}".format(save_path))
-#         if save_name: 
-#             plt.savefig("figures/{}/{}.png".format(save_path,save_name))
-#             plt.close()
-
-#     plt.show()
-
-def plot_alg(data, parameter_trials, forms, save_path = "compare_algorithms"):
-    for formation in forms:
-        labels = parameter_trials
-
-        x = np.arange(len(labels))  # the label locations
-        width = 0.10  # the width of the bars
-
-        fig, ax = plt.subplots(figsize=(10,10))
-        rects = []
-        i = 0
-        ax.plot(labels, labels,'--',label="Target",  color = 'silver', linewidth=4)
-        for key,bar_data in data.items():
-            # rects += [ax.bar(x + (width * i), bar_data[formation["name"]].values(), width, label=name, bottom=0)]
-            name,color = key
-            ls=['-','--','-.'][i%3]
-            if "Decision" in name: continue
-            if color is not None:
-                ax.plot(labels, bar_data[formation["name"]].values(),label=name,  linestyle=ls, color=color)
-            else: 
-                ax.plot(labels, bar_data[formation["name"]].values(),label=name,  linestyle=ls)
-            i += 1
-        if "Decision" in name: ax.plot(labels, data["Decision Tree"][formation["name"]].values(),'-',label="Decision Tree",  color = 'black', linewidth=4, marker="*", linestyle = 'None')
-
-        # Add some text for labels, title and custom x-axis tick labels, etc.
-        ax.set_ylabel('Achived Fiedler Value')
-        ax.set_xlabel('Desired Fiedler Value')
-        ax.set_title('Algorithm Comparision (Formation {})'.format(formation["name"]))
-        ax.legend()
-        # ax.legend(tuple([b[0] for b in rects]), tuple(data.keys()))
-        ax.autoscale_view()
-
-        fig.tight_layout()
-
-        save_name = formation["name"]
-        mkdir_p("figures/{}".format(save_path))
-        if save_name: 
-            plt.savefig("figures/{}/{}.png".format(save_path,save_name))
-            plt.close()
+    save_name = formation["name"]
+    mkdir_p("figures/{}".format(save_path))
+    if save_name: 
+        plt.savefig("figures/{}/{}.png".format(save_path,save_name))
+        plt.close()
 
     plt.show()
 
@@ -253,12 +211,9 @@ def simulate(forms, parameter_trials):
 
     # Preload classes to allow decision tree to make only once
 
-    results = {}
-    alg_results = OrderedDict()
     meta_stats = {}
     for formation in forms:
-        results[formation["name"]] = {}
-        # alg_results[formation["name"]] = {}
+        alg_results = OrderedDict()
 
         test_types = [
             # TestSpecifyDecisionTree(formation, fiedler, bound="one", target_connectivity=min(parameter_trials)),
@@ -274,7 +229,6 @@ def simulate(forms, parameter_trials):
         test = TestFull(formation)
         (test,graph) = (test, test.create_graph(None))
         nf = fiedler(graph.adj_matrix)
-        results[formation["name"]]["true"] = nf
         print('{:<24s}{:<32s}{:<8s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(test.target_connectivity), test.bound, fiedler(graph.adj_matrix), normalized_fiedler(graph.adj_matrix), str(get_edges(graph.adj_matrix))))
         print()
 
@@ -291,9 +245,8 @@ def simulate(forms, parameter_trials):
                 
                 test_n = (test.name,getattr(test, "color", None))
                 if test_n not in alg_results: alg_results[test_n] = {}
-                if formation["name"] not in alg_results[test_n]: alg_results[test_n][formation["name"]] = {}
-                if x not in alg_results[test_n][formation["name"]]: alg_results[test_n][formation["name"]][x] = {}
-                alg_results[test_n][formation["name"]][x] = tnf
+                if x not in alg_results[test_n]: alg_results[test_n][x] = {}
+                alg_results[test_n][x] = tnf
                 
                 print('{:<24s}{:<32s}{:<8s}{:<8s}{:<10.4f}{:<10.4f}{:<20s}'.format(formation["name"], test.name, str(x), test.bound, fiedler(graph.adj_matrix), tnf, str(get_edges(graph.adj_matrix))))
                 if test_n not in meta_stats:
@@ -301,7 +254,7 @@ def simulate(forms, parameter_trials):
                 meta_stats[test_n]["edges"] += (len(get_edges(formation["full"])) - len(get_edges(graph.adj_matrix)))
             print()
             
-    plot_alg(alg_results,parameter_trials, forms)
+        plot_bar_alg(alg_results,parameter_trials, formation, "compare_algorithms_round-1")
 
     print()
     print("META STATS")
@@ -322,16 +275,19 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--formation", type=int, help="enter a formation number/id",
-                        nargs='?', default=0, const=0, choices=range(0, len(formations) + 1))
+                        nargs='?', default=0, const=0, choices=range(-1, len(formations) + 1))
     args = parser.parse_args()
 
     # To Create a Formation, add one to `formations.py`
-    if args.formation == 0:
+    if args.formation == -1:
+        forms = []
+    elif args.formation == 0:
         forms = formations
     else: 
         form = formations[args.formation - 1]
         forms = [form]
 
+    
 
     # To Create a New Test
     # ... create a class with a `create_graph` method and a name property
@@ -345,16 +301,16 @@ if __name__ == "__main__":
 
 
     parameter_trials = [0.45, 0.6, 1, 1.25, 1.75, 2, 2.5]
-    
-    additional = []
-    for size in range(10,15,5):
-        additional.append({
-            "name": "n = {} and λ ≈ {}".format(size,round(10,2)),
-            "nodes": [None, None],
-            "full": random_graph(size, 10)
-        })
-    forms = additional + forms
+
     simulate(forms, parameter_trials)
+    
+    # additional = []
+    # for size in range(10,20,10):
+    #     simulate([{
+    #         "name": "n = {} and λ ≈ {}".format(size,round(10,2)),
+    #         "nodes": [None, None],
+    #         "full": random_graph(size, 10)
+    #     }], parameter_trials)
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)  
