@@ -17,11 +17,6 @@ class SpecifyLargeGradient(SpecifySmallGradient):
             return False
         return True
 
-    def gradient(self,g,u,v):
-        # (vi - vj)^2
-        fv = fiedler_vector(g)
-        return (fv[u] - fv[v])**2
-
     def find_max_edge(self, g, target, current, bound,allow_disconnected):
         l = len(g)
         options = []
@@ -36,7 +31,8 @@ class SpecifyLargeGradient(SpecifySmallGradient):
                 res = (res[0],res[1],(u,v))
                 options.append(res)
         in_range = list(filter(lambda item: self.is_valid_edge(item[0], target, current, bound,allow_disconnected), options))
-        in_range = [(f, g, self.gradient(g,u,v)) for (f, g, (u,v)) in in_range]
+        grad = self.gradient(g)
+        in_range = [(f, g_p, grad((u,v))) for (f, g_p, (u,v)) in in_range]
         # Take the edge that brings us closest to the target Fiedler value
         # Thus taking the edge that changes the fiedler the "most" but not "too much"
         res = max(in_range, key=lambda tup: tup[2], default=None)
